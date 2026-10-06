@@ -30,6 +30,9 @@ export interface StoreQuoteResult {
   tax: number;
   total: number;
   item_count: number;
+  status?: string;
+  sale_id?: number;
+  sale_number?: string;
 }
 
 export const isStoreApiConfigured = (): boolean => API_BASE.length > 0;

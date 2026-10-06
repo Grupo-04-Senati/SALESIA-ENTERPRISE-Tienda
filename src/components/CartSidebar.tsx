@@ -34,11 +34,12 @@ export default function CartSidebar() {
   const { items, isOpen, removeItem, updateCantidad, clearCart, toggleCart, subtotal } = useCart()
   const [contacto, setContacto] = useState<Contacto>(loadContacto)
   const [enviando, setEnviando] = useState(false)
-  const [envio, setEnvio] = useState<{ firma: string; numero: string } | null>(null)
+  const [envio, setEnvio] = useState<{ firma: string; numero: string; venta: string | null } | null>(null)
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null)
 
   const firmaActual = items.map(item => `${item.product.id}x${item.cantidad}`).join('|')
   const numeroCotizacion = envio && envio.firma === firmaActual ? envio.numero : null
+  const numeroVenta = envio && envio.firma === firmaActual ? envio.venta : null
 
   const setCampo = (campo: keyof Contacto) => (event: { target: { value: string } }) => {
     const bruto = event.target.value
@@ -94,7 +95,7 @@ export default function CartSidebar() {
         })),
         notes: 'Cotización enviada desde la tienda web SalesIA Enterprise Tienda.',
       })
-      setEnvio({ firma: firmaActual, numero: result.quote_number })
+      setEnvio({ firma: firmaActual, numero: result.quote_number, venta: result.sale_number ?? null })
     } catch (error) {
       setErrorEnvio(error instanceof Error ? error.message : 'No se pudo enviar la cotización.')
     } finally {
@@ -110,6 +111,7 @@ export default function CartSidebar() {
     items.map(item => `• ${item.product.nombre} (x${item.cantidad}) — ${formatPrecio(item.product.precio * item.cantidad)}`).join('\n') +
     '\n\nSubtotal: ' + formatPrecio(subtotal) +
     (numeroCotizacion ? `\nCotización registrada en SalesIA: ${numeroCotizacion}` : '') +
+    (numeroVenta ? `\nVenta registrada: ${numeroVenta} (stock descontado)` : '') +
     '\n¿Me confirman stock y precio mayorista?'
 
   if (!isOpen) return null
@@ -249,7 +251,12 @@ export default function CartSidebar() {
               <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-start gap-2 text-xs text-emerald-800">
                 <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
-                  Cotización <b>{numeroCotizacion}</b> registrada en SalesIA. Un asesor te contactará.
+                  Cotización <b>{numeroCotizacion}</b>
+                  {numeroVenta ? (
+                    <> → venta <b>{numeroVenta}</b> registrada en SalesIA: el stock se descontó automáticamente.</>
+                  ) : (
+                    <> registrada en SalesIA. Un asesor te contactará.</>
+                  )}
                 </span>
               </div>
             )}
