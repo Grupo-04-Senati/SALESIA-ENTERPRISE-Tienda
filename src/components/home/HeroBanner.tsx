@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, ArrowRight, ShieldCheck } from 'lucide-react'
 import { whatsappGeneral } from '../../utils/whatsapp'
+import { getProducts, getCategories } from '../../services/productService'
 
 const BANNER_SLIDES = [
   {
@@ -42,6 +44,22 @@ interface HeroBannerProps {
 }
 
 export default function HeroBanner({ currentSlide, onPrev, onNext, onDotClick, onMouseEnter, onMouseLeave }: HeroBannerProps) {
+  const [stats, setStats] = useState<{ productos: string; categorias: string }>({ productos: '…', categorias: '…' })
+
+  useEffect(() => {
+    let alive = true
+    Promise.all([getProducts(), getCategories()])
+      .then(([products, categories]) => {
+        if (alive) setStats({ productos: String(products.length), categorias: String(categories.length) })
+      })
+      .catch(() => {
+        if (alive) setStats({ productos: '—', categorias: '—' })
+      })
+    return () => {
+      alive = false
+    }
+  }, [])
+
   return (
     <section className="relative overflow-hidden border-b border-[var(--color-border)]" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
       {BANNER_SLIDES.map((slide, i) => (
@@ -93,7 +111,11 @@ export default function HeroBanner({ currentSlide, onPrev, onNext, onDotClick, o
             <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/15 p-6 shadow-xl">
               <div className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-white/60 mb-4">SalesIA Enterprise Tienda</div>
               <div className="grid grid-cols-3 gap-3 mb-5">
-                {[{ k: '+1.2k', l: 'Productos' }, { k: '6', l: 'Categorías' }, { k: '24-72h', l: 'Despacho' }].map(s => (
+                {[
+                  { k: stats.productos, l: 'Productos' },
+                  { k: stats.categorias, l: 'Categorías' },
+                  { k: '24-72h', l: 'Despacho' },
+                ].map(s => (
                   <div key={s.l} className="rounded-2xl bg-white/10 border border-white/10 p-3.5 text-center">
                     <div className="font-extrabold text-white leading-none text-[22px] mb-1.5">{s.k}</div>
                     <div className="text-[10px] font-bold tracking-[0.08em] uppercase text-white/70">{s.l}</div>

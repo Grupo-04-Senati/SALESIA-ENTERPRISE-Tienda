@@ -14,10 +14,6 @@ const FAQ_DATA = [
     pregunta: '¿Realizan envíos a todo el Perú?',
     respuesta: 'Sí, realizamos envíos a todos los departamentos del Perú. El costo y el tiempo de entrega varían según la distancia. Contáctanos para más detalles.',
   },
-  {
-    pregunta: '¿Cuáles son las formas de pago aceptadas?',
-    respuesta: 'Aceptamos efectivo, transferencia bancaria, Yape, Plin y tarjetas de crédito/débito Visa, Mastercard, American Express y PayPal. Para pedidos mayoristas también ofrecemos condiciones especiales. Consulta a nuestro equipo por más información.',
-  },
 ]
 
 export default function FaqAccordion() {

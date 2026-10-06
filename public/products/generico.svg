@@ -1,7 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-  <rect width="400" height="400" fill="#F8FAFC"/>
-  <rect x="140" y="120" width="120" height="120" rx="20" fill="#E2E8F0"/>
-  <circle cx="200" cy="170" r="28" fill="#CBD5E1"/>
-  <rect x="185" y="198" width="30" height="4" rx="2" fill="#94A3B8"/>
-  <text x="200" y="290" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="13" font-weight="600" fill="#94A3B8">Sin imagen</text>
+  <rect width="400" height="400" fill="#E8EEF6"/>
+  <rect x="80" y="80" width="240" height="240" rx="32" fill="#CBD5E4"/>
+  <circle cx="200" cy="168" r="46" fill="#94A7C1"/>
+  <path d="M128 300c14-44 42-66 72-66s58 22 72 66" fill="none" stroke="#94A7C1" stroke-width="20" stroke-linecap="round"/>
 </svg>

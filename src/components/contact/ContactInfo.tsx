@@ -34,7 +34,7 @@ export default function ContactInfo() {
             <Mail className="w-5 h-5 text-[var(--color-primary)]" />
           </div>
           <div className="pt-0.5">
-            <p className="font-bold text-[var(--color-navy)] text-[15px]">salamalecucabomcabom@gmail.com</p>
+            <p className="font-bold text-[var(--color-navy)] text-[15px]">contacto@salesia.com</p>
             <p className="text-sm text-[var(--color-text-muted)] mt-0.5">Consultas y cotizaciones</p>
           </div>
         </li>

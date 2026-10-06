@@ -13,20 +13,24 @@ interface CategoryGridProps {
 function CategoryCard({ cat }: { cat: Category }) {
   const [stage, setStage] = useState(0)
   const localImg = getCategoryImage(cat.id)
-  const imgSrc = stage === 0 ? cat.imagen : stage === 1 ? localImg : null
+  const candidates = [cat.imagen, localImg].filter(
+    (src, index, all): src is string => Boolean(src) && all.indexOf(src) === index,
+  )
+  const imgSrc = candidates[stage] ?? null
 
   return (
     <Link to={`/catalogo?categoria=${cat.id}`} className="group rounded-2xl overflow-hidden bg-white border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:shadow-md transition-all shadow-sm">
-      <div className="h-[120px] bg-gray-50 flex items-center justify-center relative overflow-hidden rounded-t-2xl border-b border-[var(--color-border)]">
+      <div className="h-[140px] bg-gray-100 flex items-center justify-center relative overflow-hidden rounded-t-2xl border-b border-[var(--color-border)]">
         {imgSrc ? (
           <img
             src={imgSrc}
             alt={cat.nombre}
-            className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={() => setStage((value) => value + 1)}
           />
         ) : (
-          <div className="text-[var(--color-metallic)] text-4xl font-bold opacity-20">{cat.nombre.charAt(0)}</div>
+          <div className="text-[var(--color-metallic)] text-5xl font-bold opacity-20">{cat.nombre.charAt(0)}</div>
         )}
       </div>
       <div className="p-4">

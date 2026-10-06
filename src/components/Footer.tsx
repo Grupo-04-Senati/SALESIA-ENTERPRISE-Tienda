@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { ShieldCheck, Truck, Phone, MapPin, Clock, Mail } from 'lucide-react'
-import SocialLinks from './footer/SocialLinks'
 import PaymentMethods from './footer/PaymentMethods'
 import FooterNav from './footer/FooterNav'
 
@@ -40,7 +39,6 @@ export default function Footer() {
             <p className="text-sm text-white/60 leading-relaxed mb-5">
               SalesIA Enterprise Tienda — empresa peruana fundada en 2026. Catálogo mayorista con precios al por mayor y despachos a todo el Perú.
             </p>
-            <SocialLinks />
           </div>
 
           {/* Contacto */}
@@ -64,7 +62,7 @@ export default function Footer() {
               </p>
               <p className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                <a href="mailto:salamalecucabomcabom@gmail.com" className="hover:text-white font-semibold transition-colors">salamalecucabomcabom@gmail.com</a>
+                <a href="mailto:contacto@salesia.com" className="hover:text-white font-semibold transition-colors">contacto@salesia.com</a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
