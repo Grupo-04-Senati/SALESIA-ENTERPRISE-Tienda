@@ -78,6 +78,7 @@ const ISSUE_TRANSLATIONS: [RegExp, string][] = [
   [/at least (\d+) characters/i, 'mínimo $1 caracteres'],
   [/not a valid integer|greater than or equal to 1/i, 'no es válido'],
   [/not a valid email/i, 'no es un correo válido'],
+  [/should match pattern.*\d\{7,15\}.*$/i, 'debe tener entre 7 y 15 dígitos (puede empezar con +)'],
 ];
 
 /** Traduce el error 422 del API a un mensaje entendible para el cliente. */
