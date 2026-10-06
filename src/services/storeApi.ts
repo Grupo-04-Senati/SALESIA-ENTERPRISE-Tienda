@@ -73,6 +73,10 @@ const FIELD_LABELS: Record<string, string> = {
   'body.customer.phone': 'Teléfono',
   'body.customer.email': 'Correo',
   'body.items': 'Productos',
+  'body.name': 'Nombre',
+  'body.email': 'Correo',
+  'body.phone': 'Teléfono',
+  'body.message': 'Mensaje',
   body: 'Datos enviados',
 };
 
@@ -96,4 +100,39 @@ function describeApiError(body: { message?: string; detail?: { field?: string; i
   }
   const detail = label ? `${label}: ${issue.charAt(0).toLowerCase()}${issue.slice(1)}` : issue;
   return body?.message ? `${body.message} ${detail}` : detail;
+}
+
+export interface StoreContactPayload {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+}
+
+/** Envía el formulario de contacto de la tienda a SalesIA (POST /store/contact). */
+export async function sendContactMessage(payload: StoreContactPayload): Promise<void> {
+  if (!API_BASE) {
+    throw createServiceError('El sistema de SalesIA no está disponible ahora.', 'NO_API');
+  }
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/api/v1/store/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify(payload),
+    });
+  } catch {
+    throw createServiceError('No se pudo conectar con SalesIA. Inténtalo de nuevo.', 'NETWORK_ERROR');
+  }
+
+  const body = (await response.json().catch(() => null)) as
+    | { message?: string; detail?: { field?: string; issue?: string }[] }
+    | null;
+  if (!response.ok) {
+    throw createServiceError(
+      describeApiError(body),
+      body?.message ? 'API_ERROR' : 'VALIDATION_ERROR',
+    );
+  }
 }

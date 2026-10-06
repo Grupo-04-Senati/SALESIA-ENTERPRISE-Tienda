@@ -11,18 +11,19 @@ interface CategoryGridProps {
 }
 
 function CategoryCard({ cat }: { cat: Category }) {
-  const [imgError, setImgError] = useState(false)
-  const imgSrc = getCategoryImage(cat.id)
+  const [stage, setStage] = useState(0)
+  const localImg = getCategoryImage(cat.id)
+  const imgSrc = stage === 0 ? cat.imagen : stage === 1 ? localImg : null
 
   return (
     <Link to={`/catalogo?categoria=${cat.id}`} className="group rounded-2xl overflow-hidden bg-white border border-[var(--color-border)] hover:border-[var(--color-accent)] hover:shadow-md transition-all shadow-sm">
       <div className="h-[120px] bg-gray-50 flex items-center justify-center relative overflow-hidden rounded-t-2xl border-b border-[var(--color-border)]">
-        {!imgError ? (
+        {imgSrc ? (
           <img
             src={imgSrc}
             alt={cat.nombre}
             className="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-300"
-            onError={() => setImgError(true)}
+            onError={() => setStage((value) => value + 1)}
           />
         ) : (
           <div className="text-[var(--color-metallic)] text-4xl font-bold opacity-20">{cat.nombre.charAt(0)}</div>

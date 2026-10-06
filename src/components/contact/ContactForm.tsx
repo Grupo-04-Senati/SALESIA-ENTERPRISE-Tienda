@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Send, CheckCircle } from 'lucide-react'
+import { sendContactMessage } from '../../services/storeApi'
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -10,6 +11,8 @@ export default function ContactForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [enviado, setEnviado] = useState(false)
+  const [enviando, setEnviando] = useState(false)
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null)
 
   const validar = (): boolean => {
     const newErrors: Record<string, string> = {}
@@ -47,11 +50,24 @@ export default function ContactForm() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (validar()) {
+    if (!validar()) return
+    setEnviando(true)
+    setErrorEnvio(null)
+    try {
+      await sendContactMessage({
+        name: formData.nombre.trim(),
+        email: formData.email.trim(),
+        phone: formData.telefono,
+        message: formData.mensaje.trim(),
+      })
       setEnviado(true)
       setFormData({ nombre: '', email: '', telefono: '', mensaje: '' })
+    } catch (error) {
+      setErrorEnvio(error instanceof Error ? error.message : 'No se pudo enviar el mensaje.')
+    } finally {
+      setEnviando(false)
     }
   }
 
@@ -193,12 +209,19 @@ export default function ContactForm() {
             </div>
           </div>
 
+          {errorEnvio && (
+            <div role="alert" className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-medium text-red-700">
+              {errorEnvio}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+            disabled={enviando}
+            className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] disabled:opacity-60 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
           >
             <Send className="w-5 h-5" />
-            Enviar mensaje
+            {enviando ? 'Enviando a SalesIA…' : 'Enviar mensaje'}
           </button>
         </form>
       )}
