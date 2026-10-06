@@ -41,7 +41,11 @@ export default function CartSidebar() {
   const numeroCotizacion = envio && envio.firma === firmaActual ? envio.numero : null
 
   const setCampo = (campo: keyof Contacto) => (event: { target: { value: string } }) => {
-    const siguiente = { ...contacto, [campo]: event.target.value }
+    const bruto = event.target.value
+    const valor = campo === 'telefono'
+      ? bruto.replace(/[^\d+]/g, '').replace(/(?!^)\+/g, '').slice(0, 16)
+      : bruto
+    const siguiente = { ...contacto, [campo]: valor }
     setContacto(siguiente)
     try {
       localStorage.setItem(CONTACT_KEY, JSON.stringify(siguiente))
@@ -53,11 +57,26 @@ export default function CartSidebar() {
   const enviarACotizacion = async () => {
     setErrorEnvio(null)
     if (contacto.nombre.trim().length < 3) {
-      setErrorEnvio('Ingresa tu nombre completo para generar la cotización.')
+      setErrorEnvio('Ingresa tu nombre completo (mínimo 3 caracteres).')
       return
     }
-    if (!contacto.telefono.trim() && !contacto.correo.trim()) {
+    const telefono = contacto.telefono.trim()
+    const correo = contacto.correo.trim()
+    if (!telefono && !correo) {
       setErrorEnvio('Ingresa tu teléfono o tu correo para poder contactarte.')
+      return
+    }
+    if (telefono && !/^\+?\d{7,15}$/.test(telefono)) {
+      setErrorEnvio('El teléfono debe tener entre 7 y 15 dígitos (puede empezar con +).')
+      return
+    }
+    if (correo && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(correo)) {
+      setErrorEnvio('El correo no tiene un formato válido.')
+      return
+    }
+    const ids = items.map(item => Number(item.product.id))
+    if (ids.some(id => !Number.isInteger(id) || id < 1)) {
+      setErrorEnvio('Hay productos sin sincronizar con SalesIA. Recarga la página e inténtalo de nuevo.')
       return
     }
 
@@ -66,11 +85,11 @@ export default function CartSidebar() {
       const result = await sendStoreQuote({
         customer: {
           name: contacto.nombre.trim(),
-          phone: contacto.telefono.trim() || null,
-          email: contacto.correo.trim() || null,
+          phone: telefono || null,
+          email: correo || null,
         },
-        items: items.map(item => ({
-          product_id: Number(item.product.id),
+        items: items.map((item, index) => ({
+          product_id: ids[index],
           quantity: item.cantidad,
         })),
         notes: 'Cotización enviada desde la tienda web SalesIA Enterprise Tienda.',
@@ -210,7 +229,7 @@ export default function CartSidebar() {
                   onChange={setCampo('telefono')}
                   placeholder="Teléfono"
                   inputMode="tel"
-                  maxLength={20}
+                  maxLength={16}
                   autoComplete="tel"
                   className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
                 />
