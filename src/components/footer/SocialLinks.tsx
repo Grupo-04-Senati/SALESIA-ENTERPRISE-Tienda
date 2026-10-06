@@ -40,9 +40,9 @@ interface SocialLink {
 }
 
 const LINKS: SocialLink[] = [
-  { icon: FacebookIcon, href: 'https://www.facebook.com/chamoimport/?locale=es_LA', label: 'Facebook', hoverBg: 'hover:bg-[#1877F2]' },
-  { icon: InstagramIcon, href: 'https://www.instagram.com/chamoimport.pe/', label: 'Instagram', hoverBg: 'hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]' },
-  { icon: TikTokIcon, href: 'https://www.tiktok.com/@chamoimportsrl', label: 'TikTok', hoverBg: 'hover:bg-black hover:ring-1 hover:ring-white/20' },
+  { icon: FacebookIcon, href: '#', label: 'Facebook', hoverBg: 'hover:bg-[#1877F2]' },
+  { icon: InstagramIcon, href: '#', label: 'Instagram', hoverBg: 'hover:bg-gradient-to-br hover:from-[#F58529] hover:via-[#DD2A7B] hover:to-[#8134AF]' },
+  { icon: TikTokIcon, href: '#', label: 'TikTok', hoverBg: 'hover:bg-black hover:ring-1 hover:ring-white/20' },
   { icon: WhatsAppIcon, href: whatsappGeneral(), label: 'WhatsApp', hoverBg: 'hover:bg-[var(--color-whatsapp)]' },
 ]
 
@@ -53,8 +53,8 @@ export default function SocialLinks() {
         <a
           key={label}
           href={href}
-          target="_blank"
-          rel="noopener noreferrer"
+          target={href.startsWith('#') ? undefined : '_blank'}
+          rel={href.startsWith('#') ? undefined : 'noopener noreferrer'}
           aria-label={label}
           title={label}
           className={`w-10 h-10 rounded-xl bg-white/10 ${hoverBg} flex items-center justify-center transition-all duration-200 hover:scale-105`}

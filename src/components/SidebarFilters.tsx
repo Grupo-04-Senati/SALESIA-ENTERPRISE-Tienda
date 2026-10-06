@@ -1,16 +1,15 @@
-import type { Filters } from '../types'
+import type { Category, Filters } from '../types'
 
 interface Props {
   filters: Filters
+  categorias: Pick<Category, 'id' | 'nombre'>[]
   marcas: string[]
   precioMax: number
   onChange: (filters: Filters) => void
   onClear: () => void
 }
 
-const CATEGORIAS = ['ferreteria', 'iluminacion', 'electricos', 'adhesivos', 'seguridad', 'campana-escolar']
-
-export default function SidebarFilters({ filters, marcas, precioMax, onChange, onClear }: Props) {
+export default function SidebarFilters({ filters, categorias, marcas, precioMax, onChange, onClear }: Props) {
   const toggleCategoria = (catId: string) => {
     const updated = filters.categorias.includes(catId)
       ? filters.categorias.filter(c => c !== catId)
@@ -62,15 +61,15 @@ export default function SidebarFilters({ filters, marcas, precioMax, onChange, o
       <div>
         <h4 className="text-sm font-bold text-[var(--color-navy)] mb-3 uppercase tracking-[0.12em] text-[11px]">Categoría</h4>
         <div className="space-y-2">
-          {CATEGORIAS.map(cat => (
-            <label key={cat} className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-primary)] transition-colors group font-medium">
+          {categorias.map(cat => (
+            <label key={cat.id} className="flex items-center gap-2.5 text-sm text-[var(--color-text-secondary)] cursor-pointer hover:text-[var(--color-primary)] transition-colors group font-medium">
               <input
                 type="checkbox"
-                checked={filters.categorias.includes(cat)}
-                onChange={() => toggleCategoria(cat)}
+                checked={filters.categorias.includes(cat.id)}
+                onChange={() => toggleCategoria(cat.id)}
                 className="w-4 h-4 rounded accent-[var(--color-accent)] bg-white border-[var(--color-border-strong)] cursor-pointer"
               />
-              <span className="capitalize">{cat.replace('-', ' ')}</span>
+              <span>{cat.nombre}</span>
             </label>
           ))}
         </div>

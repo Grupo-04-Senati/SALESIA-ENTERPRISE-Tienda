@@ -1,13 +1,97 @@
-import { X, Minus, Plus, Trash2, ShoppingBag, ShieldCheck } from 'lucide-react'
+import { useState } from 'react'
+import { CheckCircle2, Minus, Plus, Send, ShieldCheck, ShoppingBag, Trash2, X } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { getProductImage } from '../utils/images'
 import { buildWhatsAppUrl } from '../utils/whatsapp'
+import { sendStoreQuote } from '../services/storeApi'
+
+interface Contacto {
+  nombre: string
+  telefono: string
+  correo: string
+}
+
+const CONTACT_KEY = 'salesia_store_contact'
+
+const loadContacto = (): Contacto => {
+  try {
+    const raw = localStorage.getItem(CONTACT_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw) as Partial<Contacto>
+      return {
+        nombre: parsed.nombre ?? '',
+        telefono: parsed.telefono ?? '',
+        correo: parsed.correo ?? '',
+      }
+    }
+  } catch {
+    /* sin contacto guardado */
+  }
+  return { nombre: '', telefono: '', correo: '' }
+}
 
 export default function CartSidebar() {
   const { items, isOpen, removeItem, updateCantidad, clearCart, toggleCart, subtotal } = useCart()
+  const [contacto, setContacto] = useState<Contacto>(loadContacto)
+  const [enviando, setEnviando] = useState(false)
+  const [envio, setEnvio] = useState<{ firma: string; numero: string } | null>(null)
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null)
+
+  const firmaActual = items.map(item => `${item.product.id}x${item.cantidad}`).join('|')
+  const numeroCotizacion = envio && envio.firma === firmaActual ? envio.numero : null
+
+  const setCampo = (campo: keyof Contacto) => (event: { target: { value: string } }) => {
+    const siguiente = { ...contacto, [campo]: event.target.value }
+    setContacto(siguiente)
+    try {
+      localStorage.setItem(CONTACT_KEY, JSON.stringify(siguiente))
+    } catch {
+      /* almacenamiento no disponible */
+    }
+  }
+
+  const enviarACotizacion = async () => {
+    setErrorEnvio(null)
+    if (contacto.nombre.trim().length < 3) {
+      setErrorEnvio('Ingresa tu nombre completo para generar la cotización.')
+      return
+    }
+    if (!contacto.telefono.trim() && !contacto.correo.trim()) {
+      setErrorEnvio('Ingresa tu teléfono o tu correo para poder contactarte.')
+      return
+    }
+
+    setEnviando(true)
+    try {
+      const result = await sendStoreQuote({
+        customer: {
+          name: contacto.nombre.trim(),
+          phone: contacto.telefono.trim() || null,
+          email: contacto.correo.trim() || null,
+        },
+        items: items.map(item => ({
+          product_id: Number(item.product.id),
+          quantity: item.cantidad,
+        })),
+        notes: 'Cotización enviada desde la tienda web SalesIA Enterprise Tienda.',
+      })
+      setEnvio({ firma: firmaActual, numero: result.quote_number })
+    } catch (error) {
+      setErrorEnvio(error instanceof Error ? error.message : 'No se pudo enviar la cotización.')
+    } finally {
+      setEnviando(false)
+    }
+  }
 
   const formatPrecio = (precio: number) =>
     new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(precio)
+
+  const mensajeWhatsApp =
+    'Hola SalesIA Enterprise Tienda, quiero cotizar:\n' +
+    items.map(item => `• ${item.product.nombre} (x${item.cantidad}) — ${formatPrecio(item.product.precio * item.cantidad)}`).join('\n') +
+    '\n\nSubtotal: ' + formatPrecio(subtotal) +
+    (numeroCotizacion ? `\nCotización registrada en SalesIA: ${numeroCotizacion}` : '') +
+    '\n¿Me confirman stock y precio mayorista?'
 
   if (!isOpen) return null
 
@@ -106,16 +190,77 @@ export default function CartSidebar() {
               <ShieldCheck className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
               Precios mayoristas sujetos a stock y validación por asesor.
             </div>
+
+            {/* Datos de contacto para la cotización */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
+                Tus datos para la cotización
+              </p>
+              <input
+                value={contacto.nombre}
+                onChange={setCampo('nombre')}
+                placeholder="Nombre y apellido *"
+                maxLength={150}
+                autoComplete="name"
+                className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <input
+                  value={contacto.telefono}
+                  onChange={setCampo('telefono')}
+                  placeholder="Teléfono"
+                  inputMode="tel"
+                  maxLength={20}
+                  autoComplete="tel"
+                  className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+                />
+                <input
+                  value={contacto.correo}
+                  onChange={setCampo('correo')}
+                  placeholder="Correo"
+                  type="email"
+                  maxLength={160}
+                  autoComplete="email"
+                  className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+                />
+              </div>
+            </div>
+
+            {numeroCotizacion && (
+              <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-start gap-2 text-xs text-emerald-800">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>
+                  Cotización <b>{numeroCotizacion}</b> registrada en SalesIA. Un asesor te contactará.
+                </span>
+              </div>
+            )}
+            {errorEnvio && (
+              <div role="alert" className="rounded-xl bg-red-50 border border-red-200 p-3 text-xs font-medium text-red-700">
+                {errorEnvio}
+              </div>
+            )}
+
             <div className="flex items-center justify-between">
               <span className="text-sm text-[var(--color-text-secondary)] font-medium">Subtotal estimado</span>
               <span className="text-xl font-extrabold text-[var(--color-primary)]">{formatPrecio(subtotal)}</span>
             </div>
+
+            <button
+              type="button"
+              onClick={enviarACotizacion}
+              disabled={enviando}
+              className="flex items-center justify-center gap-2 w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] disabled:opacity-60 text-white text-center h-12 rounded-xl font-bold transition-all active:scale-[0.98] shadow-md"
+            >
+              <Send className="w-4 h-4" />
+              {enviando
+                ? 'Enviando a SalesIA…'
+                : numeroCotizacion
+                  ? 'Cotización enviada ✓'
+                  : 'Generar cotización en SalesIA'}
+            </button>
+
             <a
-              href={buildWhatsAppUrl(
-                'Hola Chamo Import, quiero cotizar:\n' +
-                items.map(item => `• ${item.product.nombre} (x${item.cantidad}) — ${formatPrecio(item.product.precio * item.cantidad)}`).join('\n') +
-                '\n\nSubtotal: ' + formatPrecio(subtotal) + '\n¿Me confirman stock y precio mayorista?'
-              )}
+              href={buildWhatsAppUrl(mensajeWhatsApp)}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 w-full bg-[var(--color-whatsapp)] hover:opacity-90 text-white text-center h-12 rounded-xl font-bold transition-all active:scale-[0.98] shadow-md"

@@ -1,11 +1,12 @@
 import { X } from 'lucide-react'
 import SidebarFilters from '../SidebarFilters'
-import type { Filters } from '../../types'
+import type { Category, Filters } from '../../types'
 
 interface MobileFilterDrawerProps {
   open: boolean
   onClose: () => void
   filters: Filters
+  categorias: Pick<Category, 'id' | 'nombre'>[]
   marcas: string[]
   precioMax: number
   onChange: (f: Filters) => void
@@ -16,6 +17,7 @@ export default function MobileFilterDrawer({
   open,
   onClose,
   filters,
+  categorias,
   marcas,
   precioMax,
   onChange,
@@ -34,6 +36,7 @@ export default function MobileFilterDrawer({
         </div>
         <SidebarFilters
           filters={filters}
+          categorias={categorias}
           marcas={marcas}
           precioMax={precioMax}
           onChange={onChange}

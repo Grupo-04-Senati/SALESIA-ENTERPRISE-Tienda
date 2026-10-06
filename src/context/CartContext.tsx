@@ -18,7 +18,7 @@ const CartContext = createContext<CartContextType | null>(null)
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('chamo_cart_items')
+      const saved = localStorage.getItem('salesia_cart_items') ?? localStorage.getItem('chamo_cart_items')
       if (saved) {
         return JSON.parse(saved)
       }
@@ -32,7 +32,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      localStorage.setItem('chamo_cart_items', JSON.stringify(items))
+      localStorage.setItem('salesia_cart_items', JSON.stringify(items))
     } catch (e) {
       console.error('Failed to save cart items to local storage', e)
     }

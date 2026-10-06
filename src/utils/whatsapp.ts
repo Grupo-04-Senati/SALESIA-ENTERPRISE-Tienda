@@ -1,4 +1,4 @@
-const WA_NUMBER = '51936608583'
+const WA_NUMBER = '51997126761'
 
 export function buildWhatsAppUrl(text: string): string {
   return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`
@@ -26,6 +26,6 @@ export function whatsappCotizarDesdeCard(nombre: string, sku: string): string {
 
 export function whatsappGeneral(): string {
   return buildWhatsAppUrl(
-    `Hola Chamo Import, me gustaría recibir información sobre sus productos y precios mayoristas. ¡Gracias!`
+    `Hola SalesIA Enterprise Tienda, me gustaría recibir información sobre sus productos y precios mayoristas. ¡Gracias!`
   )
 }

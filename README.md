@@ -1,10 +1,10 @@
-# Catálogo Web Frontend - Chamo Import
+# Catálogo Web Frontend - SalesIA Enterprise Tienda
 
 Interfaz completa de un catálogo mayorista construida sobre datos simulados, respetando la identidad de marca existente.
 
 ## Descripción
 
-Catálogo web para una empresa importadora y distribuidora de ferretería, iluminación, artículos eléctricos, adhesivos y campaña escolar. Toda la información proviene de archivos JSON locales que simulan la respuesta de una API, con un delay artificial de 500-800ms para replicar un entorno real.
+Catálogo web mayorista de SalesIA Enterprise Tienda (empresa fundada en 2026). Toda la información proviene de archivos JSON locales que simulan la respuesta de una API, con un delay artificial de 500-800ms para replicar un entorno real.
 
 ## Funcionalidades Implementadas
 

@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Entorno local (el de produccion se configura en Vercel)
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

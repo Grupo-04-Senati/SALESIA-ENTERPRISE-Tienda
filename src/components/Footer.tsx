@@ -35,10 +35,10 @@ export default function Footer() {
           {/* Marca + redes sociales */}
           <div>
             <Link to="/" className="flex items-center gap-3 mb-5">
-              <img src="/brand/logo.png" alt="Chamo Import S.R.L." className="h-[20px] lg:h-[28px] max-w-[120px] w-auto object-contain" />
+              <img src="/Logo/logo.jpg" alt="SalesIA Enterprise Tienda" className="h-10 lg:h-11 w-auto rounded-lg object-contain" />
             </Link>
             <p className="text-sm text-white/60 leading-relaxed mb-5">
-              Importadores y distribuidores mayoristas desde 2013. Ferretería, iluminación, artículos eléctricos, adhesivos, seguridad y campaña escolar.
+              SalesIA Enterprise Tienda — empresa peruana fundada en 2026. Catálogo mayorista con precios al por mayor y despachos a todo el Perú.
             </p>
             <SocialLinks />
           </div>
@@ -52,19 +52,19 @@ export default function Footer() {
             <address className="not-italic space-y-3 text-sm text-white/70">
               <p className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[var(--color-accent)] mt-0.5 shrink-0" />
-                Galería Cuzco, Jr. Cusco 716, Lima 15001
+                Zapallal, Puente Piedra, Lima 15122
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                <a href="tel:+51963986002" className="hover:text-white font-semibold transition-colors">+51 963 986 002</a>
+                <a href="tel:+51966666666" className="hover:text-white font-semibold transition-colors">+51 966 666 666</a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                <a href="tel:+51936608583" className="hover:text-white font-semibold transition-colors">+51 936 608 583</a>
+                <a href="tel:+51944444444" className="hover:text-white font-semibold transition-colors">+51 944 444 444</a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
-                <a href="mailto:@chamoimport.com" className="hover:text-white font-semibold transition-colors">@chamoimport.com</a>
+                <a href="mailto:salamalecucabomcabom@gmail.com" className="hover:text-white font-semibold transition-colors">salamalecucabomcabom@gmail.com</a>
               </p>
               <p className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-[var(--color-accent)] shrink-0" />
@@ -86,7 +86,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 py-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/50">
-          <p>&copy; {new Date().getFullYear()} Chamo Import S.R.L. — Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} SalesIA Enterprise Tienda — Todos los derechos reservados.</p>
           <p className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-[var(--color-accent)] animate-pulse" />
             Lima, Perú · Atendemos a todo el país

@@ -1,7 +1,7 @@
 import { Phone, MapPin, Clock, Mail } from 'lucide-react'
 
-const MAPS_EMBED = 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3901.890479155267!2d-77.03450942416752!3d-12.051016842065842!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c8c6f3db13b1%3A0xc3b5e408d132646c!2sGaler%C3%ADa%20Cuzco!5e0!3m2!1ses-419!2spe!4v1700000000000!5m2!1ses-419!2spe'
-const MAPS_LINK = 'https://www.google.com/maps/search/Galeria+Cuzco+Jr+Cusco+716+Lima+15001'
+const MAPS_EMBED = 'https://maps.google.com/maps?q=-11.846935%2C-77.100032&z=15&output=embed'
+const MAPS_LINK = 'https://maps.app.goo.gl/iPfndhjAS55FZR2K7'
 
 export default function ContactInfo() {
   return (
@@ -15,8 +15,8 @@ export default function ContactInfo() {
             <Phone className="w-5 h-5 text-[var(--color-primary)]" />
           </div>
           <div className="pt-0.5">
-            <p className="font-bold text-[var(--color-navy)] text-[15px]">+51 963 986 002</p>
-            <p className="font-bold text-[var(--color-navy)] text-[15px] mt-1">+51 936 608 583</p>
+            <p className="font-bold text-[var(--color-navy)] text-[15px]">+51 966 666 666</p>
+            <p className="font-bold text-[var(--color-navy)] text-[15px] mt-1">+51 944 444 444</p>
             <p className="text-sm text-[var(--color-text-muted)] mt-1">Atención vía WhatsApp y llamadas</p>
           </div>
         </li>
@@ -25,8 +25,8 @@ export default function ContactInfo() {
             <MapPin className="w-5 h-5 text-[var(--color-primary)]" />
           </div>
           <div className="pt-0.5">
-            <p className="font-bold text-[var(--color-navy)] text-[15px]">Galería Cuzco, Jr. Cusco 716, Lima 15001</p>
-            <p className="text-sm text-[var(--color-text-muted)] mt-0.5">Referencia: Cercado de Lima</p>
+            <p className="font-bold text-[var(--color-navy)] text-[15px]">Zapallal, Puente Piedra, Lima 15122</p>
+            <p className="text-sm text-[var(--color-text-muted)] mt-0.5">Coordenadas: -11.846935, -77.100032</p>
           </div>
         </li>
         <li className="flex items-start gap-4">
@@ -34,7 +34,7 @@ export default function ContactInfo() {
             <Mail className="w-5 h-5 text-[var(--color-primary)]" />
           </div>
           <div className="pt-0.5">
-            <p className="font-bold text-[var(--color-navy)] text-[15px]">@chamoimport.com</p>
+            <p className="font-bold text-[var(--color-navy)] text-[15px]">salamalecucabomcabom@gmail.com</p>
             <p className="text-sm text-[var(--color-text-muted)] mt-0.5">Consultas y cotizaciones</p>
           </div>
         </li>
@@ -58,7 +58,7 @@ export default function ContactInfo() {
           allowFullScreen={false}
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
-          title="Ubicación Galería Cuzco"
+          title="Ubicación Zapallal, Puente Piedra"
           className="absolute inset-0"
         />
       </div>

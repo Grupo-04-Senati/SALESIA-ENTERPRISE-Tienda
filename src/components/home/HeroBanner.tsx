@@ -5,8 +5,8 @@ import { whatsappGeneral } from '../../utils/whatsapp'
 const BANNER_SLIDES = [
   {
     id: 1,
-    eyebrow: 'Mayorista oficial · Lima · Envíos a todo el Perú',
-    titulo: 'Ferretería e iluminación para tu negocio y hogar',
+    eyebrow: 'SalesIA Enterprise · Lima · Envíos a todo el Perú',
+    titulo: 'Catálogo mayorista para tu negocio y hogar',
     subtitulo: 'Gran stock, precios al por mayor y atención inmediata por WhatsApp.',
     cta: 'Ver catálogo',
     link: '/catalogo',
@@ -15,7 +15,7 @@ const BANNER_SLIDES = [
   {
     id: 2,
     eyebrow: 'Precios al por mayor',
-    titulo: 'Abastece tu ferretería al mejor precio',
+    titulo: 'Abastece tu negocio al mejor precio',
     subtitulo: 'Marcas líderes, garantía y despacho rápido a nivel nacional.',
     cta: 'Cotizar ahora',
     link: '/contacto',
@@ -91,7 +91,7 @@ export default function HeroBanner({ currentSlide, onPrev, onNext, onDotClick, o
 
           <div className="hidden lg:block relative z-10">
             <div className="rounded-3xl bg-white/10 backdrop-blur-md border border-white/15 p-6 shadow-xl">
-              <div className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-white/60 mb-4">Chamo Import S.R.L.</div>
+              <div className="text-[10px] font-extrabold tracking-[0.2em] uppercase text-white/60 mb-4">SalesIA Enterprise Tienda</div>
               <div className="grid grid-cols-3 gap-3 mb-5">
                 {[{ k: '+1.2k', l: 'Productos' }, { k: '6', l: 'Categorías' }, { k: '24-72h', l: 'Despacho' }].map(s => (
                   <div key={s.l} className="rounded-2xl bg-white/10 border border-white/10 p-3.5 text-center">

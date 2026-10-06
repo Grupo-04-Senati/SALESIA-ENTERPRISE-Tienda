@@ -158,7 +158,7 @@ export default function ContactForm() {
                 className={`w-full px-4 py-3.5 rounded-r-xl border ${
                   errors.telefono ? 'border-red-500 bg-red-50' : 'border-[var(--color-border)] bg-gray-50'
                 } text-[var(--color-text)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-4 focus:ring-[var(--color-accent)]/10 transition-all`}
-                placeholder="936608583"
+                placeholder="944444444"
               />
             </div>
             <div className="flex justify-between mt-1">

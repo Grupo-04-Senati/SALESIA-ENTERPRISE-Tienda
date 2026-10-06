@@ -84,9 +84,9 @@ export default function Header() {
           <div className="flex items-center gap-3 lg:gap-6 py-2.5">
             <Link to="/" className="shrink-0 flex items-center" onClick={() => { window.location.href = '/' }}>
               <img
-                src="/brand/logo.png"
-                alt="CHAMO IMPORT S.R.L."
-                className="h-[20px] lg:h-[28px] max-w-[120px] w-auto object-contain"
+                src="/Logo/logo.jpg" 
+                alt="SalesIA Enterprise Tienda"
+                className="h-9 lg:h-10 w-auto rounded-lg object-contain"
                 onError={(e) => {
                   const img = e.target as HTMLImageElement
                   img.style.display = 'none'
@@ -95,10 +95,10 @@ export default function Header() {
                 }}
               />
               <span id="logo-fallback" className="hidden items-center gap-2">
-                <span className="w-9 h-9 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-black text-sm shadow-md">CI</span>
+                <span className="w-9 h-9 rounded-lg bg-[var(--color-primary)] flex items-center justify-center text-white font-black text-sm shadow-md">SE</span>
                 <span className="leading-none">
-                  <span className="block font-[var(--font-heading)] font-extrabold text-sm text-white tracking-tight">CHAMO IMPORT</span>
-                  <span className="block text-[10px] tracking-[0.18em] font-bold text-white/50">S.R.L.</span>
+                  <span className="block font-[var(--font-heading)] font-extrabold text-sm text-white tracking-tight">SALESIA ENTERPRISE</span>
+                  <span className="block text-[10px] tracking-[0.18em] font-bold text-white/50">TIENDA</span>
                 </span>
               </span>
             </Link>

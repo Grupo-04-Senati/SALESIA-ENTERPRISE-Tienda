@@ -1,12 +1,17 @@
 import type { Product } from '../types'
 
 const CATEGORY_IMAGES: Record<string, string> = {
+  // IDs locales del JSON de respaldo
   ferreteria: '/categories/ferreteria.svg',
   iluminacion: '/categories/iluminacion.svg',
   electricos: '/categories/electricos.svg',
   adhesivos: '/categories/adhesivos.svg',
   seguridad: '/categories/seguridad.svg',
   'campana-escolar': '/categories/campana-escolar.svg',
+  // Slugs generados por el API de SalesIA a partir del nombre de categoría
+  herramientas: '/categories/ferreteria.svg',
+  'articulos-electricos': '/categories/electricos.svg',
+  'seguridad-industrial': '/categories/seguridad.svg',
 }
 
 const GENERIC_IMAGE = '/products/generico.svg'

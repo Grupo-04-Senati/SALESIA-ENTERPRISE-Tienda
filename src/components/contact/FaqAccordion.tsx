@@ -8,7 +8,7 @@ const FAQ_DATA = [
   },
   {
     pregunta: '¿Puedo recoger mi pedido en tienda?',
-    respuesta: 'Sí, puedes hacer tu pedido y recogerlo en nuestra tienda ubicada en Galería Cuzco, Jr. Cusco 716, Lima 15001. Te notificaremos cuando esté listo para que pases por él.',
+    respuesta: 'Sí, puedes hacer tu pedido y recogerlo en nuestra tienda ubicada en Zapallal, Puente Piedra, Lima. Te notificaremos cuando esté listo para que pases por él.',
   },
   {
     pregunta: '¿Realizan envíos a todo el Perú?',

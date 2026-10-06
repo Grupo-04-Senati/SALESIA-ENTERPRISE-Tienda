@@ -6,7 +6,7 @@ export interface Product {
   categoria: string;
   marca: string;
   precio: number;
-  precioMayorista: number;
+  precioMayorista: number | null;
   precioAnterior: number | null;
   stock: number;
   imagenes: string[];

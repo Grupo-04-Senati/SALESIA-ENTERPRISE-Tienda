@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { PackageSearch, AlertTriangle, RefreshCw } from 'lucide-react'
-import { getProducts, getBrands } from '../services/productService'
+import { getProducts, getBrands, getCategories } from '../services/productService'
 import type { ServiceError } from '../services/productService'
 import { useDebounce } from '../hooks/useDebounce'
 import ProductCard from '../components/ProductCard'
@@ -10,13 +10,14 @@ import { ProductCardSkeleton } from '../components/Skeleton'
 import CatalogHeader from '../components/catalog/CatalogHeader'
 import SearchBar from '../components/catalog/SearchBar'
 import MobileFilterDrawer from '../components/catalog/MobileFilterDrawer'
-import type { Product, Filters, SortOption } from '../types'
+import type { Product, Category, Filters, SortOption } from '../types'
 
 const ITEMS_PER_PAGE = 12
 
 export default function Catalog() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [productos, setProductos] = useState<Product[]>([])
+  const [categorias, setCategorias] = useState<Category[]>([])
   const [marcas, setMarcas] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [busqueda, setBusqueda] = useState(searchParams.get('q') || '')
@@ -43,9 +44,10 @@ export default function Catalog() {
       setLoading(true)
       setError(null)
       try {
-        const [prods, marks] = await Promise.all([getProducts(), getBrands()])
+        const [prods, marks, cats] = await Promise.all([getProducts(), getBrands(), getCategories()])
         setProductos(prods)
         setMarcas(marks)
+        setCategorias(cats)
         setFiltros(prev => ({ ...prev, precioMax: Math.max(...prods.map(p => p.precio)) }))
       } catch (err) {
         setError((err as ServiceError).message || 'Ocurrió un error inesperado')
@@ -119,6 +121,7 @@ export default function Catalog() {
           open={mobileFiltersOpen}
           onClose={() => setMobileFiltersOpen(false)}
           filters={filtros}
+          categorias={categorias}
           marcas={marcas}
           precioMax={precioMaxGlobal}
           onChange={handleFiltrosChange}
@@ -127,7 +130,7 @@ export default function Catalog() {
 
         <div className="flex gap-8">
           <div className="hidden md:block w-72 shrink-0">
-            <SidebarFilters filters={filtros} marcas={marcas} precioMax={precioMaxGlobal} onChange={handleFiltrosChange} onClear={limpiarFiltros} />
+            <SidebarFilters filters={filtros} categorias={categorias} marcas={marcas} precioMax={precioMaxGlobal} onChange={handleFiltrosChange} onClear={limpiarFiltros} />
           </div>
 
           <div className="flex-1 min-w-0">

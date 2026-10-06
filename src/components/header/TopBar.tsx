@@ -29,36 +29,36 @@ export default function TopBar() {
     <div className="bg-[var(--color-dark)] border-b border-white/10">
       <div className="max-w-[1280px] mx-auto px-4 h-[34px] flex items-center justify-between text-[11px]">
         <div className="flex items-center gap-4">
-          <a href="tel:+51963986002" className="flex items-center gap-1.5 text-white hover:text-[var(--color-light-blue)] transition-colors">
+          <a href="tel:+51966666666" className="flex items-center gap-1.5 text-white hover:text-[var(--color-light-blue)] transition-colors">
             <Phone className="w-3 h-3 text-[var(--color-accent)]" />
-            <span className="tracking-wide">+51 963 986 002</span>
+            <span className="tracking-wide">+51 966 666 666</span>
           </a>
-          <a href="tel:+51936608583" className="flex items-center gap-1.5 text-white hover:text-[var(--color-light-blue)] transition-colors">
+          <a href="tel:+51944444444" className="flex items-center gap-1.5 text-white hover:text-[var(--color-light-blue)] transition-colors">
             <span className="w-px h-3 bg-white/15" />
             <Phone className="w-3 h-3 text-[var(--color-accent)]" />
-            <span className="tracking-wide">+51 936 608 583</span>
+            <span className="tracking-wide">+51 944 444 444</span>
           </a>
           <span className="hidden md:flex items-center gap-1.5 text-white/60">
             <span className="w-px h-3 bg-white/15" />
             <MapPin className="w-3 h-3" />
-            Galería Cuzco, Jr. Cusco 716, Lima 15001
+            Zapallal, Puente Piedra, Lima 15122
           </span>
           <span className="hidden lg:flex items-center gap-1.5 text-white/60">
             <span className="w-px h-3 bg-white/15" />
             <Mail className="w-3 h-3" />
-            @chamoimport.com
+            salamalecucabomcabom@gmail.com
           </span>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden sm:inline text-white/45 text-[10px] uppercase tracking-[0.14em]">Síguenos</span>
           <div className="flex items-center gap-2">
-            <a href="https://www.facebook.com/chamoimport/?locale=es_LA" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#1877F2] transition-colors" aria-label="Facebook">
+            <a href="#" className="text-white hover:text-[#1877F2] transition-colors" aria-label="Facebook">
               <FacebookIcon className="w-4 h-4" />
             </a>
-            <a href="https://www.instagram.com/chamoimport.pe/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[#E1306C] transition-colors" aria-label="Instagram">
+            <a href="#" className="text-white hover:text-[#E1306C] transition-colors" aria-label="Instagram">
               <InstagramIcon className="w-4 h-4" />
             </a>
-            <a href="https://www.tiktok.com/@chamoimportsrl" target="_blank" rel="noopener noreferrer" className="text-white hover:text-white/80 transition-colors" aria-label="TikTok">
+            <a href="#" className="text-white hover:text-white/80 transition-colors" aria-label="TikTok">
               <TikTokIcon className="w-4 h-4" />
             </a>
           </div>
