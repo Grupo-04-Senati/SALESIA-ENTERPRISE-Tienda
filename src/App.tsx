@@ -1,5 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
+import { PrankProvider } from './prank/PrankContext'
+import PrankOverlay from './prank/PrankOverlay'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import CartSidebar from './components/CartSidebar'
@@ -13,27 +15,33 @@ import NotFound from './pages/NotFound'
 
 function App() {
   return (
-    <CartProvider>
-      <div className="min-h-screen flex flex-col">
-        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-[var(--color-primary)] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:outline-none">
-          Saltar al contenido principal
-        </a>
-        <ScrollToTop />
-        <Header />
-        <CartSidebar />
-        <WhatsAppButton />
-        <main id="main-content" className="flex-1" role="main">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/catalogo" element={<Catalog />} />
-            <Route path="/producto/:id" element={<ProductDetail />} />
-            <Route path="/contacto" element={<Contact />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </CartProvider>
+    <PrankProvider defaultArmed>
+      <CartProvider>
+        <div className="min-h-screen flex flex-col">
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-[var(--color-primary)] focus:text-white focus:px-4 focus:py-2 focus:rounded-lg focus:font-bold focus:outline-none"
+          >
+            Saltar al contenido principal
+          </a>
+          <ScrollToTop />
+          <Header />
+          <CartSidebar />
+          <WhatsAppButton />
+          <main id="main-content" className="flex-1" role="main">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/catalogo" element={<Catalog />} />
+              <Route path="/producto/:id" element={<ProductDetail />} />
+              <Route path="/contacto" element={<Contact />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </CartProvider>
+      <PrankOverlay />
+    </PrankProvider>
   )
 }
 
