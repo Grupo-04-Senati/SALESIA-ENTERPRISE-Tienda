@@ -117,15 +117,18 @@ const FIELD_LABELS: Record<string, string> = {
   'body.email': 'Correo',
   'body.phone': 'Teléfono',
   'body.password': 'Contraseña',
+  'body.document_number': 'Documento',
   'body.message': 'Mensaje',
   body: 'Datos enviados',
 };
 
 const ISSUE_TRANSLATIONS: [RegExp, string][] = [
+  [/^Value error, /i, ''],
   [/at most (\d+) characters/i, 'máximo $1 caracteres'],
   [/at least (\d+) characters/i, 'mínimo $1 caracteres'],
   [/not a valid integer|greater than or equal to 1/i, 'no es válido'],
   [/not a valid email/i, 'no es un correo válido'],
+  [/String should match pattern.*$/i, 'solo se permiten dígitos'],
   [/should match pattern.*\d\{7,15\}.*$/i, 'debe tener entre 7 y 15 dígitos (puede empezar con +)'],
 ];
 
@@ -200,8 +203,23 @@ export interface StoreAuthResult {
 export interface StoreRegisterPayload {
   name: string;
   email: string;
+  document_type: 'DNI' | 'RUC';
+  document_number: string;
   phone?: string | null;
   password: string;
+}
+
+export interface StoreLookupResult {
+  found: boolean;
+  name?: string;
+  source: string;
+}
+
+/** Busca el nombre de un cliente invitado por DNI/RUC (solo base local). */
+export async function lookupDocument(document: string): Promise<StoreLookupResult> {
+  return storeRequest<StoreLookupResult>(`/lookup?document=${encodeURIComponent(document)}`, {
+    fallback: 'No se pudo buscar el documento.',
+  });
 }
 
 export interface StoreOrderItem {
