@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext'
 
 const NAV_LINKS = [
   { to: '/', label: 'Inicio', arrow: true },
+  { to: '/ofertas', label: 'Ofertas', arrow: true },
   { to: '/catalogo', label: 'Catálogo', arrow: true },
   { to: '/contacto', label: 'Contacto', arrow: true },
 ]

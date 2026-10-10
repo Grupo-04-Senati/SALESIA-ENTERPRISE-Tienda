@@ -10,6 +10,7 @@ import WhatsAppButton from './components/WhatsAppButton'
 import ScrollToTop from './components/ScrollToTop'
 import Home from './pages/Home'
 import Catalog from './pages/Catalog'
+import Ofertas from './pages/Ofertas'
 import ProductDetail from './pages/ProductDetail'
 import Contact from './pages/Contact'
 import Ingresar from './pages/Ingresar'
@@ -38,6 +39,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/catalogo" element={<Catalog />} />
+                <Route path="/ofertas" element={<Ofertas />} />
                 <Route path="/producto/:id" element={<ProductDetail />} />
                 <Route path="/contacto" element={<Contact />} />
                 <Route path="/ingresar" element={<Ingresar />} />

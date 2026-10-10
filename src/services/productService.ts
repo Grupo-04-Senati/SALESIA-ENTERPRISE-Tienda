@@ -46,6 +46,7 @@ interface StorePage<T> {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function mapStoreProduct(item: any): Product {
   const salePrice = Number(item.sale_price ?? 0);
+  const promo = item.promotion ?? null;
   return {
     id: String(item.id),
     sku: String(item.sku ?? ''),
@@ -53,17 +54,20 @@ function mapStoreProduct(item: any): Product {
     descripcion: String(item.description ?? ''),
     categoria: String(item.category?.slug ?? 'sin-categoria'),
     marca: String(item.brand ?? ''),
-    precio: salePrice,
+    precio: promo ? Number(promo.price) : salePrice,
     precioMayorista:
       item.wholesale_price === null || item.wholesale_price === undefined
         ? null
         : Number(item.wholesale_price),
-    precioAnterior: null,
+    precioAnterior: promo ? salePrice : null,
     stock: Number(item.current_stock ?? 0),
     imagenes: item.image_url ? [String(item.image_url)] : [],
     destacado: !!item.is_featured,
-    etiquetas: [],
+    etiquetas: promo ? ['oferta'] : [],
     especificaciones: {},
+    promocion: promo
+      ? { nombre: String(promo.name), tipo: String(promo.kind), valor: Number(promo.value) }
+      : null,
   };
 }
 

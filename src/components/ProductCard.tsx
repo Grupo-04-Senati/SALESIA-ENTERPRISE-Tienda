@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
-import { ShoppingCart } from 'lucide-react'
+import { ShoppingCart, Tag } from 'lucide-react'
 import { getProductImage, formatPrecio } from '../utils/images'
 import { whatsappCotizarDesdeCard } from '../utils/whatsapp'
 import type { Product } from '../types'
@@ -89,6 +89,12 @@ export default function ProductCard({ product }: Props) {
             </span>
           )}
         </div>
+        {product.promocion && (
+          <span className="inline-flex w-fit items-center gap-1 mt-1.5 text-[10px] font-extrabold uppercase tracking-wide bg-[var(--color-accent)]/15 text-[var(--color-accent)] px-2 py-0.5 rounded-full">
+            <Tag className="w-3 h-3" />
+            {product.promocion.nombre}
+          </span>
+        )}
         {product.precioMayorista && (
           <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">
             Mayorista <span className="font-bold text-[var(--color-accent)]">{formatPrecio(product.precioMayorista)}</span>

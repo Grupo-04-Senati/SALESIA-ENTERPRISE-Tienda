@@ -1,3 +1,9 @@
+export interface Promocion {
+  nombre: string;
+  tipo: string;
+  valor: number;
+}
+
 export interface Product {
   id: string;
   sku: string;
@@ -13,6 +19,7 @@ export interface Product {
   destacado: boolean;
   etiquetas: string[];
   especificaciones: Record<string, string>;
+  promocion?: Promocion | null;
 }
 
 export interface Category {

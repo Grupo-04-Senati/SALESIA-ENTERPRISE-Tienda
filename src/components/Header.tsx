@@ -12,6 +12,7 @@ import MobileMenu from './header/MobileMenu'
 
 const NAV_LINKS = [
   { to: '/', label: 'Inicio' },
+  { to: '/ofertas', label: 'Ofertas' },
   { to: '/catalogo', label: 'Catálogo' },
   { to: '/contacto', label: 'Contacto' },
 ]
