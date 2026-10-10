@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { CheckCircle2, Minus, Plus, Send, ShieldCheck, ShoppingBag, Trash2, UserRound, X } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/auth'
@@ -63,6 +64,10 @@ export default function CartSidebar() {
 
   const enviarACotizacion = async () => {
     setErrorEnvio(null)
+    if (!customer) {
+      setErrorEnvio('Inicia sesión para comprar en la tienda.')
+      return
+    }
     if (nombreEfectivo.trim().length < 3) {
       setErrorEnvio('Ingresa tu nombre completo (mínimo 3 caracteres).')
       return
@@ -219,47 +224,72 @@ export default function CartSidebar() {
             </div>
 
             {/* Datos de contacto para la cotización */}
-            <div className="space-y-2">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
-                Tus datos para la cotización
-              </p>
-              {customer && (
+            {!customer ? (
+              <div className="space-y-3">
+                <div className="rounded-xl bg-blue-50 border border-blue-200 p-3 text-xs text-blue-800">
+                  <p className="font-bold mb-1">Solo clientes con sesión pueden comprar</p>
+                  <p>Ingresa a tu cuenta o créala para enviar tu pedido a SalesIA.</p>
+                </div>
+                <Link
+                  to="/ingresar"
+                  onClick={toggleCart}
+                  className="flex items-center justify-center gap-2 w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-center h-12 rounded-xl font-bold transition-all active:scale-[0.98] shadow-md"
+                >
+                  <UserRound className="w-4 h-4" />
+                  Inicia sesión para comprar
+                </Link>
+                <p className="text-center text-xs text-[var(--color-text-secondary)]">
+                  ¿No tienes cuenta?{' '}
+                  <Link
+                    to="/registro"
+                    onClick={toggleCart}
+                    className="font-bold text-[var(--color-primary)] hover:underline"
+                  >
+                    Créala gratis
+                  </Link>
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
+                  Tus datos para la cotización
+                </p>
                 <div className="rounded-xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] p-2.5 flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
                   <UserRound className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />
                   <span>
                     Comprando como <b className="text-[var(--color-navy)]">{customer.name}</b>
                   </span>
                 </div>
-              )}
-              <input
-                value={nombreEfectivo}
-                onChange={setCampo('nombre')}
-                placeholder="Nombre y apellido *"
-                maxLength={150}
-                autoComplete="name"
-                className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
-              />
-              <div className="grid grid-cols-2 gap-2">
                 <input
-                  value={telefonoEfectivo}
-                  onChange={setCampo('telefono')}
-                  placeholder="Teléfono"
-                  inputMode="tel"
-                  maxLength={16}
-                  autoComplete="tel"
+                  value={nombreEfectivo}
+                  onChange={setCampo('nombre')}
+                  placeholder="Nombre y apellido *"
+                  maxLength={150}
+                  autoComplete="name"
                   className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
                 />
-                <input
-                  value={correoEfectivo}
-                  onChange={setCampo('correo')}
-                  placeholder="Correo"
-                  type="email"
-                  maxLength={160}
-                  autoComplete="email"
-                  className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={telefonoEfectivo}
+                    onChange={setCampo('telefono')}
+                    placeholder="Teléfono"
+                    inputMode="tel"
+                    maxLength={16}
+                    autoComplete="tel"
+                    className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+                  />
+                  <input
+                    value={correoEfectivo}
+                    onChange={setCampo('correo')}
+                    placeholder="Correo"
+                    type="email"
+                    maxLength={160}
+                    autoComplete="email"
+                    className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {numeroCotizacion && (
               <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-start gap-2 text-xs text-emerald-800">
@@ -285,19 +315,21 @@ export default function CartSidebar() {
               <span className="text-xl font-extrabold text-[var(--color-primary)]">{formatPrecio(subtotal)}</span>
             </div>
 
-            <button
-              type="button"
-              onClick={enviarACotizacion}
-              disabled={enviando}
-              className="flex items-center justify-center gap-2 w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] disabled:opacity-60 text-white text-center h-12 rounded-xl font-bold transition-all active:scale-[0.98] shadow-md"
-            >
-              <Send className="w-4 h-4" />
-              {enviando
-                ? 'Enviando a SalesIA…'
-                : numeroCotizacion
-                  ? 'Cotización enviada ✓'
-                  : 'Generar cotización en SalesIA'}
-            </button>
+            {customer && (
+              <button
+                type="button"
+                onClick={enviarACotizacion}
+                disabled={enviando}
+                className="flex items-center justify-center gap-2 w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] disabled:opacity-60 text-white text-center h-12 rounded-xl font-bold transition-all active:scale-[0.98] shadow-md"
+              >
+                <Send className="w-4 h-4" />
+                {enviando
+                  ? 'Enviando a SalesIA…'
+                  : numeroCotizacion
+                    ? 'Cotización enviada ✓'
+                    : 'Generar cotización en SalesIA'}
+              </button>
+            )}
 
             <a
               href={buildWhatsAppUrl(mensajeWhatsApp)}

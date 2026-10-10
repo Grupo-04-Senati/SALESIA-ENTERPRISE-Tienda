@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
+  AlertTriangle,
   CheckCircle2,
   Clock3,
   LogOut,
+  MessageSquare,
   PackageCheck,
   PackageOpen,
   RefreshCw,
@@ -11,7 +13,13 @@ import {
   UserRound,
 } from 'lucide-react'
 import { useAuth } from '../context/auth'
-import { fetchStoreOrders, type StoreOrder } from '../services/storeApi'
+import {
+  fetchStoreOrders,
+  markOrderReceived,
+  sendOrderClaim,
+  type StoreClaim,
+  type StoreOrder,
+} from '../services/storeApi'
 
 const STATUS_STYLE: Record<StoreOrder['status'], { label: string; className: string }> = {
   pending: { label: 'Pendiente', className: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -41,6 +49,11 @@ export default function Cuenta() {
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
+  const [marcando, setMarcando] = useState<number | null>(null)
+  const [reclamandoId, setReclamandoId] = useState<number | null>(null)
+  const [textoReclamo, setTextoReclamo] = useState('')
+  const [enviandoReclamo, setEnviandoReclamo] = useState(false)
+  const [errorAccion, setErrorAccion] = useState<{ id: number; message: string } | null>(null)
 
   const cargarPedidos = useCallback(async () => {
     try {
@@ -84,6 +97,57 @@ export default function Cuenta() {
   const handleLogout = () => {
     logout()
     navigate('/', { replace: true })
+  }
+
+  const handleRecibido = async (orderId: number, received: boolean) => {
+    if (marcando !== null) return
+    setMarcando(orderId)
+    setErrorAccion(null)
+    try {
+      const updated = await markOrderReceived(orderId, received)
+      setOrders((prev) => prev.map((row) => (row.id === orderId ? updated : row)))
+    } catch (error) {
+      setErrorAccion({
+        id: orderId,
+        message: error instanceof Error ? error.message : 'No se pudo actualizar la entrega.',
+      })
+    } finally {
+      setMarcando(null)
+    }
+  }
+
+  const abrirReclamo = (orderId: number) => {
+    setReclamandoId((actual) => (actual === orderId ? null : orderId))
+    setTextoReclamo('')
+    setErrorAccion(null)
+  }
+
+  const handleEnviarReclamo = async (orderId: number) => {
+    if (enviandoReclamo) return
+    const texto = textoReclamo.trim()
+    if (texto.length < 10) {
+      setErrorAccion({ id: orderId, message: 'El reclamo debe tener al menos 10 caracteres.' })
+      return
+    }
+    setEnviandoReclamo(true)
+    setErrorAccion(null)
+    try {
+      const claim = await sendOrderClaim(orderId, texto)
+      setOrders((prev) =>
+        prev.map((row) =>
+          row.id === orderId ? { ...row, claims: [...(row.claims ?? []), claim] } : row,
+        ),
+      )
+      setReclamandoId(null)
+      setTextoReclamo('')
+    } catch (error) {
+      setErrorAccion({
+        id: orderId,
+        message: error instanceof Error ? error.message : 'No se pudo enviar el reclamo.',
+      })
+    } finally {
+      setEnviandoReclamo(false)
+    }
   }
 
   if (!ready || !customer) {
@@ -150,8 +214,8 @@ export default function Cuenta() {
           <div className="rounded-xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] p-3 flex items-start gap-2 text-xs text-[var(--color-text-secondary)]">
             <PackageCheck className="w-4 h-4 text-[var(--color-primary)] shrink-0 mt-0.5" />
             <span>
-              Cuando el equipo confirme la entrega de un pedido verás la marca
-              <b> Recibido</b> junto al estado del pedido.
+              Confirma la llegada de tus pedidos con <b>«Sí, llegó»</b>. Si hubo un problema,
+              envía una <b>reclamación</b> y el equipo te responderá por el sistema.
             </span>
           </div>
 
@@ -275,6 +339,132 @@ export default function Cuenta() {
                         {formatPrecio(order.total)}
                       </span>
                     </div>
+
+                    {(order.status !== 'cancelled' || (order.claims?.length ?? 0) > 0) && (
+                      <div className="px-5 py-4 border-t border-[var(--color-border)] space-y-3">
+                        {order.status !== 'cancelled' && (
+                          <>
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
+                                ¿Tu pedido llegó?
+                              </p>
+                              <div className="flex flex-wrap gap-2">
+                                {!order.received_at ? (
+                                  <button
+                                    onClick={() => void handleRecibido(order.id, true)}
+                                    disabled={marcando === order.id}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                                  >
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    {marcando === order.id ? 'Actualizando…' : 'Sí, llegó'}
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={() => void handleRecibido(order.id, false)}
+                                    disabled={marcando === order.id}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-[var(--color-text-secondary)] text-xs font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
+                                  >
+                                    <RefreshCw className="w-3.5 h-3.5" />
+                                    {marcando === order.id
+                                      ? 'Actualizando…'
+                                      : 'Deshacer marca de recibido'}
+                                  </button>
+                                )}
+                                {!order.received_at && (
+                                  <button
+                                    onClick={() => abrirReclamo(order.id)}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-colors"
+                                  >
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    {reclamandoId === order.id ? 'Cerrar reclamo' : 'No llegó'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            {reclamandoId === order.id && (
+                              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 space-y-2">
+                                <label
+                                  htmlFor={`reclamo-${order.id}`}
+                                  className="block text-xs font-bold text-amber-800"
+                                >
+                                  Cuéntanos qué pasó (mínimo 10 caracteres)
+                                </label>
+                                <textarea
+                                  id={`reclamo-${order.id}`}
+                                  value={textoReclamo}
+                                  onChange={(event) => setTextoReclamo(event.target.value)}
+                                  rows={3}
+                                  maxLength={1000}
+                                  placeholder="Ej.: El pedido no llegó a la dirección indicada…"
+                                  className="w-full text-sm bg-white border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <button
+                                    onClick={() => {
+                                      setReclamandoId(null)
+                                      setTextoReclamo('')
+                                    }}
+                                    className="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-white text-xs font-bold text-[var(--color-text-secondary)] hover:bg-gray-50 transition-colors"
+                                  >
+                                    Cancelar
+                                  </button>
+                                  <button
+                                    onClick={() => void handleEnviarReclamo(order.id)}
+                                    disabled={enviandoReclamo || textoReclamo.trim().length < 10}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold transition-colors disabled:opacity-50"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                    {enviandoReclamo ? 'Enviando…' : 'Enviar reclamación'}
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {errorAccion?.id === order.id && (
+                          <p role="alert" className="text-xs font-medium text-red-600">
+                            {errorAccion.message}
+                          </p>
+                        )}
+
+                        {(order.claims?.length ?? 0) > 0 && (
+                          <ul className="space-y-2">
+                            {order.claims?.map((claim: StoreClaim) => (
+                              <li
+                                key={claim.id}
+                                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-3 text-xs"
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border font-bold uppercase tracking-wide ${
+                                      claim.status === 'pendiente'
+                                        ? 'border-amber-300 bg-amber-100 text-amber-800'
+                                        : 'border-emerald-300 bg-emerald-100 text-emerald-800'
+                                    }`}
+                                  >
+                                    <MessageSquare className="w-3 h-3" />
+                                    {claim.status === 'pendiente'
+                                      ? 'Reclamo enviado'
+                                      : 'Reclamo atendido'}
+                                  </span>
+                                  <span className="text-[var(--color-text-muted)]">
+                                    {formatFecha(claim.created_at)}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-[var(--color-text)]">{claim.description}</p>
+                                {claim.resolved_at && (
+                                  <p className="mt-1 font-semibold text-emerald-700">
+                                    Atendido el {formatFecha(claim.resolved_at)}
+                                  </p>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
                   </article>
                 )
               })}

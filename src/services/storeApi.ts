@@ -214,6 +214,15 @@ export interface StoreOrderItem {
   subtotal: number;
 }
 
+export interface StoreClaim {
+  id: number;
+  sale_id: number;
+  description: string;
+  status: 'pendiente' | 'atendida';
+  created_at: string;
+  resolved_at: string | null;
+}
+
 export interface StoreOrder {
   id: number;
   sale_number: string;
@@ -229,6 +238,7 @@ export interface StoreOrder {
   cancelled_at: string | null;
   cancel_reason: string | null;
   received_at: string | null;
+  claims?: StoreClaim[];
 }
 
 async function storeRequest<T>(
@@ -304,4 +314,22 @@ export async function fetchStoreOrders(): Promise<StoreOrder[]> {
     fallback: 'No se pudieron cargar tus pedidos.',
   });
   return Array.isArray(page?.items) ? page.items : [];
+}
+
+/** Marca o desmarca un pedido como recibido por el cliente. */
+export async function markOrderReceived(saleId: number, received: boolean): Promise<StoreOrder> {
+  return storeRequest<StoreOrder>(`/orders/${saleId}/received`, {
+    method: 'PUT',
+    payload: { received },
+    fallback: 'No se pudo actualizar la entrega del pedido.',
+  });
+}
+
+/** Envía un reclamo sobre un pedido (no llegó o tuvo problemas). */
+export async function sendOrderClaim(saleId: number, description: string): Promise<StoreClaim> {
+  return storeRequest<StoreClaim>(`/orders/${saleId}/claims`, {
+    method: 'POST',
+    payload: { description },
+    fallback: 'No se pudo enviar el reclamo.',
+  });
 }
