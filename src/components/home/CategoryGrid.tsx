@@ -42,6 +42,8 @@ function CategoryCard({ cat }: { cat: Category }) {
 }
 
 export default function CategoryGrid({ categories, loading }: CategoryGridProps) {
+  if (!loading && categories.length === 0) return null
+
   return (
     <section className="py-10 bg-white border-y border-[var(--color-border)]">
       <div className="max-w-[1280px] mx-auto px-4">
