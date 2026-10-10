@@ -64,8 +64,6 @@ export interface StoreQuoteResult {
   sale_number?: string;
 }
 
-export const isStoreApiConfigured = (): boolean => API_BASE.length > 0;
-
 /** Envía el carrito al API de SalesIA y devuelve la cotización creada. */
 export async function sendStoreQuote(payload: StoreQuotePayload): Promise<StoreQuoteResult> {
   if (!API_BASE) {

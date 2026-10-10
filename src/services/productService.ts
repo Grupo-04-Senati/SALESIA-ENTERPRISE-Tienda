@@ -130,15 +130,6 @@ async function loadCategories(): Promise<Category[]> {
   return data;
 }
 
-/** Fuerza una recarga en la siguiente llamada (tras enviar una cotización). */
-export function invalidateCatalogCache(): void {
-  productsCache = null;
-  categoriesCache = null;
-}
-
-const normalize = (value: string) =>
-  value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-
 export const getProducts = async (): Promise<Product[]> => {
   try {
     const products = await loadProducts();
@@ -164,24 +155,7 @@ export const getProductsByCategory = async (categoryId: string): Promise<Product
   return products.filter(p => p.categoria === categoryId);
 };
 
-export const searchProducts = async (query: string): Promise<Product[]> => {
-  await simulateDelayIfMock();
-  const products = await loadProducts();
-  const normalizedQuery = normalize(query);
-  return products.filter(
-    p =>
-      normalize(p.nombre).includes(normalizedQuery) ||
-      p.sku.toLowerCase().includes(normalizedQuery) ||
-      normalize(p.marca).includes(normalizedQuery)
-  );
-};
-
 export const getCategories = async (): Promise<Category[]> => loadCategories();
-
-export const getCategoryById = async (id: string): Promise<Category | undefined> => {
-  const categories = await loadCategories();
-  return categories.find(c => c.id === id);
-};
 
 export const getFeaturedProducts = async (): Promise<Product[]> => {
   const products = await loadProducts();
