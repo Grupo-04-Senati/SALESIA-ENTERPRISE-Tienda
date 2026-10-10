@@ -316,15 +316,6 @@ export async function fetchStoreOrders(): Promise<StoreOrder[]> {
   return Array.isArray(page?.items) ? page.items : [];
 }
 
-/** Marca o desmarca un pedido como recibido por el cliente. */
-export async function markOrderReceived(saleId: number, received: boolean): Promise<StoreOrder> {
-  return storeRequest<StoreOrder>(`/orders/${saleId}/received`, {
-    method: 'PUT',
-    payload: { received },
-    fallback: 'No se pudo actualizar la entrega del pedido.',
-  });
-}
-
 /** Envía un reclamo sobre un pedido (no llegó o tuvo problemas). */
 export async function sendOrderClaim(saleId: number, description: string): Promise<StoreClaim> {
   return storeRequest<StoreClaim>(`/orders/${saleId}/claims`, {

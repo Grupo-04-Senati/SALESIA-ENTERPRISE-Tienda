@@ -15,7 +15,6 @@ import {
 import { useAuth } from '../context/auth'
 import {
   fetchStoreOrders,
-  markOrderReceived,
   sendOrderClaim,
   type StoreClaim,
   type StoreOrder,
@@ -49,7 +48,6 @@ export default function Cuenta() {
   const [orders, setOrders] = useState<StoreOrder[]>([])
   const [cargando, setCargando] = useState(true)
   const [errorCarga, setErrorCarga] = useState<string | null>(null)
-  const [marcando, setMarcando] = useState<number | null>(null)
   const [reclamandoId, setReclamandoId] = useState<number | null>(null)
   const [textoReclamo, setTextoReclamo] = useState('')
   const [enviandoReclamo, setEnviandoReclamo] = useState(false)
@@ -97,23 +95,6 @@ export default function Cuenta() {
   const handleLogout = () => {
     logout()
     navigate('/', { replace: true })
-  }
-
-  const handleRecibido = async (orderId: number, received: boolean) => {
-    if (marcando !== null) return
-    setMarcando(orderId)
-    setErrorAccion(null)
-    try {
-      const updated = await markOrderReceived(orderId, received)
-      setOrders((prev) => prev.map((row) => (row.id === orderId ? updated : row)))
-    } catch (error) {
-      setErrorAccion({
-        id: orderId,
-        message: error instanceof Error ? error.message : 'No se pudo actualizar la entrega.',
-      })
-    } finally {
-      setMarcando(null)
-    }
   }
 
   const abrirReclamo = (orderId: number) => {
@@ -214,7 +195,8 @@ export default function Cuenta() {
           <div className="rounded-xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] p-3 flex items-start gap-2 text-xs text-[var(--color-text-secondary)]">
             <PackageCheck className="w-4 h-4 text-[var(--color-primary)] shrink-0 mt-0.5" />
             <span>
-              Confirma la llegada de tus pedidos con <b>«Sí, llegó»</b>. Si hubo un problema,
+              SalesIA confirma la llegada de tus pedidos: verás la marca{' '}
+              <b>«Recibido»</b> cuando el equipo la registre. Si tu pedido no llegó,
               envía una <b>reclamación</b> y el equipo te responderá por el sistema.
             </span>
           </div>
@@ -340,87 +322,62 @@ export default function Cuenta() {
                       </span>
                     </div>
 
-                    {(order.status !== 'cancelled' || (order.claims?.length ?? 0) > 0) && (
+                    {((order.status !== 'cancelled' && !order.received_at) ||
+                      (order.claims?.length ?? 0) > 0 ||
+                      (reclamandoId === order.id && order.status !== 'cancelled')) && (
                       <div className="px-5 py-4 border-t border-[var(--color-border)] space-y-3">
-                        {order.status !== 'cancelled' && (
-                          <>
-                            <div className="flex flex-wrap items-center justify-between gap-3">
-                              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
-                                ¿Tu pedido llegó?
-                              </p>
-                              <div className="flex flex-wrap gap-2">
-                                {!order.received_at ? (
-                                  <button
-                                    onClick={() => void handleRecibido(order.id, true)}
-                                    disabled={marcando === order.id}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                                  >
-                                    <CheckCircle2 className="w-3.5 h-3.5" />
-                                    {marcando === order.id ? 'Actualizando…' : 'Sí, llegó'}
-                                  </button>
-                                ) : (
-                                  <button
-                                    onClick={() => void handleRecibido(order.id, false)}
-                                    disabled={marcando === order.id}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 bg-white text-[var(--color-text-secondary)] text-xs font-bold hover:bg-gray-50 transition-colors disabled:opacity-50"
-                                  >
-                                    <RefreshCw className="w-3.5 h-3.5" />
-                                    {marcando === order.id
-                                      ? 'Actualizando…'
-                                      : 'Deshacer marca de recibido'}
-                                  </button>
-                                )}
-                                {!order.received_at && (
-                                  <button
-                                    onClick={() => abrirReclamo(order.id)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-colors"
-                                  >
-                                    <AlertTriangle className="w-3.5 h-3.5" />
-                                    {reclamandoId === order.id ? 'Cerrar reclamo' : 'No llegó'}
-                                  </button>
-                                )}
-                              </div>
-                            </div>
+                        {order.status !== 'cancelled' && !order.received_at && (
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
+                              Entrega en curso · confirmada por el sistema
+                            </p>
+                            <button
+                              onClick={() => abrirReclamo(order.id)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-amber-300 bg-amber-50 text-amber-700 text-xs font-bold hover:bg-amber-100 transition-colors"
+                            >
+                              <AlertTriangle className="w-3.5 h-3.5" />
+                              {reclamandoId === order.id ? 'Cerrar reclamo' : 'No llegó'}
+                            </button>
+                          </div>
+                        )}
 
-                            {reclamandoId === order.id && (
-                              <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 space-y-2">
-                                <label
-                                  htmlFor={`reclamo-${order.id}`}
-                                  className="block text-xs font-bold text-amber-800"
-                                >
-                                  Cuéntanos qué pasó (mínimo 10 caracteres)
-                                </label>
-                                <textarea
-                                  id={`reclamo-${order.id}`}
-                                  value={textoReclamo}
-                                  onChange={(event) => setTextoReclamo(event.target.value)}
-                                  rows={3}
-                                  maxLength={1000}
-                                  placeholder="Ej.: El pedido no llegó a la dirección indicada…"
-                                  className="w-full text-sm bg-white border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
-                                />
-                                <div className="flex justify-end gap-2">
-                                  <button
-                                    onClick={() => {
-                                      setReclamandoId(null)
-                                      setTextoReclamo('')
-                                    }}
-                                    className="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-white text-xs font-bold text-[var(--color-text-secondary)] hover:bg-gray-50 transition-colors"
-                                  >
-                                    Cancelar
-                                  </button>
-                                  <button
-                                    onClick={() => void handleEnviarReclamo(order.id)}
-                                    disabled={enviandoReclamo || textoReclamo.trim().length < 10}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold transition-colors disabled:opacity-50"
-                                  >
-                                    <MessageSquare className="w-3.5 h-3.5" />
-                                    {enviandoReclamo ? 'Enviando…' : 'Enviar reclamación'}
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </>
+                        {reclamandoId === order.id && order.status !== 'cancelled' && (
+                          <div className="rounded-xl border border-amber-200 bg-amber-50/60 p-3 space-y-2">
+                            <label
+                              htmlFor={`reclamo-${order.id}`}
+                              className="block text-xs font-bold text-amber-800"
+                            >
+                              Cuéntanos qué pasó (mínimo 10 caracteres)
+                            </label>
+                            <textarea
+                              id={`reclamo-${order.id}`}
+                              value={textoReclamo}
+                              onChange={(event) => setTextoReclamo(event.target.value)}
+                              rows={3}
+                              maxLength={1000}
+                              placeholder="Ej.: El pedido no llegó a la dirección indicada…"
+                              className="w-full text-sm bg-white border border-[var(--color-border)] rounded-xl p-3 text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20"
+                            />
+                            <div className="flex justify-end gap-2">
+                              <button
+                                onClick={() => {
+                                  setReclamandoId(null)
+                                  setTextoReclamo('')
+                                }}
+                                className="px-3 py-1.5 rounded-xl border border-[var(--color-border)] bg-white text-xs font-bold text-[var(--color-text-secondary)] hover:bg-gray-50 transition-colors"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                onClick={() => void handleEnviarReclamo(order.id)}
+                                disabled={enviandoReclamo || textoReclamo.trim().length < 10}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold transition-colors disabled:opacity-50"
+                              >
+                                <MessageSquare className="w-3.5 h-3.5" />
+                                {enviandoReclamo ? 'Enviando…' : 'Enviar reclamación'}
+                              </button>
+                            </div>
+                          </div>
                         )}
 
                         {errorAccion?.id === order.id && (
