@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { CheckCircle2, Minus, Plus, Send, ShieldCheck, ShoppingBag, Trash2, X } from 'lucide-react'
+import { CheckCircle2, Minus, Plus, Send, ShieldCheck, ShoppingBag, Trash2, UserRound, X } from 'lucide-react'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/auth'
 import { getProductImage } from '../utils/images'
 import { buildWhatsAppUrl } from '../utils/whatsapp'
 import { sendStoreQuote } from '../services/storeApi'
@@ -32,10 +33,15 @@ const loadContacto = (): Contacto => {
 
 export default function CartSidebar() {
   const { items, isOpen, removeItem, updateCantidad, clearCart, toggleCart, subtotal } = useCart()
+  const { customer } = useAuth()
   const [contacto, setContacto] = useState<Contacto>(loadContacto)
   const [enviando, setEnviando] = useState(false)
   const [envio, setEnvio] = useState<{ firma: string; numero: string; venta: string | null } | null>(null)
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null)
+
+  const nombreEfectivo = contacto.nombre.trim() || customer?.name || ''
+  const telefonoEfectivo = contacto.telefono.trim() || customer?.phone || ''
+  const correoEfectivo = contacto.correo.trim() || customer?.email || ''
 
   const firmaActual = items.map(item => `${item.product.id}x${item.cantidad}`).join('|')
   const numeroCotizacion = envio && envio.firma === firmaActual ? envio.numero : null
@@ -57,12 +63,12 @@ export default function CartSidebar() {
 
   const enviarACotizacion = async () => {
     setErrorEnvio(null)
-    if (contacto.nombre.trim().length < 3) {
+    if (nombreEfectivo.trim().length < 3) {
       setErrorEnvio('Ingresa tu nombre completo (mínimo 3 caracteres).')
       return
     }
-    const telefono = contacto.telefono.trim()
-    const correo = contacto.correo.trim()
+    const telefono = telefonoEfectivo.trim()
+    const correo = correoEfectivo.trim()
     if (!telefono && !correo) {
       setErrorEnvio('Ingresa tu teléfono o tu correo para poder contactarte.')
       return
@@ -85,7 +91,7 @@ export default function CartSidebar() {
     try {
       const result = await sendStoreQuote({
         customer: {
-          name: contacto.nombre.trim(),
+          name: nombreEfectivo.trim(),
           phone: telefono || null,
           email: correo || null,
         },
@@ -217,8 +223,16 @@ export default function CartSidebar() {
               <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
                 Tus datos para la cotización
               </p>
+              {customer && (
+                <div className="rounded-xl bg-[var(--color-bg-alt)] border border-[var(--color-border)] p-2.5 flex items-center gap-2 text-xs text-[var(--color-text-secondary)]">
+                  <UserRound className="w-3.5 h-3.5 text-[var(--color-primary)] shrink-0" />
+                  <span>
+                    Comprando como <b className="text-[var(--color-navy)]">{customer.name}</b>
+                  </span>
+                </div>
+              )}
               <input
-                value={contacto.nombre}
+                value={nombreEfectivo}
                 onChange={setCampo('nombre')}
                 placeholder="Nombre y apellido *"
                 maxLength={150}
@@ -227,7 +241,7 @@ export default function CartSidebar() {
               />
               <div className="grid grid-cols-2 gap-2">
                 <input
-                  value={contacto.telefono}
+                  value={telefonoEfectivo}
                   onChange={setCampo('telefono')}
                   placeholder="Teléfono"
                   inputMode="tel"
@@ -236,7 +250,7 @@ export default function CartSidebar() {
                   className="w-full h-10 px-3 text-sm bg-gray-50 text-[var(--color-text)] border border-[var(--color-border)] rounded-xl placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
                 />
                 <input
-                  value={contacto.correo}
+                  value={correoEfectivo}
                   onChange={setCampo('correo')}
                   placeholder="Correo"
                   type="email"

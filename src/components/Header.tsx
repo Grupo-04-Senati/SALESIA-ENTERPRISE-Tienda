@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
-import { ShoppingCart, Menu, X } from 'lucide-react'
+import { ShoppingCart, Menu, X, UserRound } from 'lucide-react'
 import { useCart } from '../context/CartContext'
+import { useAuth } from '../context/auth'
 import { getProducts } from '../services/productService'
 import { whatsappGeneral } from '../utils/whatsapp'
 import type { Product } from '../types'
@@ -22,6 +23,7 @@ export default function Header() {
   const [showSugerencias, setShowSugerencias] = useState(false)
   const searchRef = useRef<HTMLDivElement>(null)
   const { totalItems, toggleCart } = useCart()
+  const { customer } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -132,6 +134,17 @@ export default function Header() {
             />
 
             <div className="flex items-center gap-2 shrink-0">
+              <Link
+                to={customer ? '/cuenta' : '/ingresar'}
+                className="relative w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center text-white transition-colors"
+                aria-label={customer ? `Mi cuenta de ${customer.name}` : 'Ingresar a mi cuenta'}
+                title={customer ? customer.name : 'Ingresar'}
+              >
+                <UserRound className="w-4 h-4" />
+                {customer && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[var(--color-accent)] border border-[var(--color-secondary)]" />
+                )}
+              </Link>
               <button
                 onClick={toggleCart}
                 className="relative w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center text-white transition-colors"

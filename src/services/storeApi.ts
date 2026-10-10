@@ -7,6 +7,35 @@ import { createServiceError } from './productService'
 
 const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/+$/, '') ?? '';
 
+const TOKEN_KEY = 'salesia_store_token';
+
+export const getStoreToken = (): string | null => {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+};
+
+export const setStoreToken = (token: string | null): void => {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* almacenamiento no disponible */
+  }
+};
+
+function storeHeaders(): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  };
+  const token = getStoreToken();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
 export interface StoreQuoteItem {
   product_id: number;
   quantity: number;
@@ -47,9 +76,17 @@ export async function sendStoreQuote(payload: StoreQuotePayload): Promise<StoreQ
   try {
     response = await fetch(`${API_BASE}/api/v1/store/quotes`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      headers: storeHeaders(),
       body: JSON.stringify(payload),
     });
+    if (response.status === 401 && getStoreToken()) {
+      setStoreToken(null);
+      response = await fetch(`${API_BASE}/api/v1/store/quotes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(payload),
+      });
+    }
   } catch {
     throw createServiceError('No se pudo conectar con SalesIA. Inténtalo de nuevo.', 'NETWORK_ERROR');
   }
@@ -63,7 +100,10 @@ export async function sendStoreQuote(payload: StoreQuotePayload): Promise<StoreQ
     | null;
 
   if (!response.ok || !body?.quote_number) {
-    throw createServiceError(describeApiError(body), body?.message ? 'API_ERROR' : 'VALIDATION_ERROR');
+    throw createServiceError(
+      describeApiError(body, 'No se pudo generar la cotización.'),
+      body?.message ? 'API_ERROR' : 'VALIDATION_ERROR',
+    );
   }
   return body as unknown as StoreQuoteResult;
 }
@@ -76,6 +116,7 @@ const FIELD_LABELS: Record<string, string> = {
   'body.name': 'Nombre',
   'body.email': 'Correo',
   'body.phone': 'Teléfono',
+  'body.password': 'Contraseña',
   'body.message': 'Mensaje',
   body: 'Datos enviados',
 };
@@ -89,9 +130,12 @@ const ISSUE_TRANSLATIONS: [RegExp, string][] = [
 ];
 
 /** Traduce el error 422 del API a un mensaje entendible para el cliente. */
-function describeApiError(body: { message?: string; detail?: { field?: string; issue?: string }[] } | null): string {
+function describeApiError(
+  body: { message?: string; detail?: { field?: string; issue?: string }[] } | null,
+  fallback = 'No se pudo completar la operación.',
+): string {
   const first = body?.detail?.[0];
-  if (!first?.issue) return body?.message ?? 'No se pudo generar la cotización.';
+  if (!first?.issue) return body?.message ?? fallback;
 
   const label = Object.entries(FIELD_LABELS).find(([key]) => (first.field ?? '').endsWith(key))?.[1];
   let issue = first.issue;
@@ -131,8 +175,133 @@ export async function sendContactMessage(payload: StoreContactPayload): Promise<
     | null;
   if (!response.ok) {
     throw createServiceError(
-      describeApiError(body),
+      describeApiError(body, 'No se pudo enviar el mensaje.'),
       body?.message ? 'API_ERROR' : 'VALIDATION_ERROR',
     );
   }
+}
+
+export interface StoreCustomer {
+  id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  document_number: string;
+  segment: string;
+  created_at: string;
+}
+
+export interface StoreAuthResult {
+  access_token: string;
+  token_type: string;
+  customer: StoreCustomer;
+}
+
+export interface StoreRegisterPayload {
+  name: string;
+  email: string;
+  phone?: string | null;
+  password: string;
+}
+
+export interface StoreOrderItem {
+  product_id: number;
+  sku: string;
+  name: string;
+  quantity: number;
+  unit_price: number;
+  discount: number;
+  subtotal: number;
+}
+
+export interface StoreOrder {
+  id: number;
+  sale_number: string;
+  issued_at: string;
+  status: 'pending' | 'partial' | 'paid' | 'cancelled';
+  items: StoreOrderItem[];
+  subtotal: number;
+  discount: number;
+  tax: number;
+  total: number;
+  paid: number;
+  balance: number;
+  cancelled_at: string | null;
+  cancel_reason: string | null;
+  received_at: string | null;
+}
+
+async function storeRequest<T>(
+  path: string,
+  options: { method?: string; payload?: unknown; fallback?: string } = {},
+): Promise<T> {
+  if (!API_BASE) {
+    throw createServiceError('El sistema de SalesIA no está disponible ahora.', 'NO_API');
+  }
+  const headers = storeHeaders();
+  if (options.payload === undefined) delete headers['Content-Type'];
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}/api/v1/store${path}`, {
+      method: options.method ?? 'GET',
+      headers,
+      body: options.payload !== undefined ? JSON.stringify(options.payload) : undefined,
+    });
+  } catch {
+    throw createServiceError('No se pudo conectar con SalesIA. Inténtalo de nuevo.', 'NETWORK_ERROR');
+  }
+
+  const body = (await response.json().catch(() => null)) as
+    | { message?: string; detail?: { field?: string; issue?: string }[] }
+    | null;
+  if (!response.ok) {
+    throw createServiceError(
+      describeApiError(body, options.fallback),
+      response.status === 401
+        ? 'UNAUTHORIZED'
+        : body?.message
+          ? 'API_ERROR'
+          : 'VALIDATION_ERROR',
+    );
+  }
+  return body as T;
+}
+
+/** Crea la cuenta de cliente y guarda el token de sesión. */
+export async function registerStoreAccount(payload: StoreRegisterPayload): Promise<StoreAuthResult> {
+  const result = await storeRequest<StoreAuthResult>('/auth/register', {
+    method: 'POST',
+    payload,
+    fallback: 'No se pudo crear la cuenta.',
+  });
+  setStoreToken(result.access_token);
+  return result;
+}
+
+/** Inicia sesión con email y contraseña y guarda el token. */
+export async function loginStoreAccount(payload: {
+  email: string;
+  password: string;
+}): Promise<StoreAuthResult> {
+  const result = await storeRequest<StoreAuthResult>('/auth/login', {
+    method: 'POST',
+    payload,
+    fallback: 'No se pudo iniciar sesión.',
+  });
+  setStoreToken(result.access_token);
+  return result;
+}
+
+/** Valida el token guardado y devuelve el cliente autenticado. */
+export async function fetchStoreMe(): Promise<StoreCustomer> {
+  return storeRequest<StoreCustomer>('/auth/me');
+}
+
+/** Pedidos del cliente autenticado (venta + líneas + estado). */
+export async function fetchStoreOrders(): Promise<StoreOrder[]> {
+  const page = await storeRequest<{ items?: StoreOrder[] }>('/orders', {
+    fallback: 'No se pudieron cargar tus pedidos.',
+  });
+  return Array.isArray(page?.items) ? page.items : [];
 }
