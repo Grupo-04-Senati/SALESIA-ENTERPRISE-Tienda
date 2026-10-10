@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CheckCircle2, Minus, Plus, Send, ShieldCheck, ShoppingBag, Trash2, UserRound, X } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/auth'
@@ -35,6 +35,7 @@ const loadContacto = (): Contacto => {
 export default function CartSidebar() {
   const { items, isOpen, removeItem, updateCantidad, clearCart, toggleCart, subtotal } = useCart()
   const { customer } = useAuth()
+  const navigate = useNavigate()
   const [contacto, setContacto] = useState<Contacto>(loadContacto)
   const [enviando, setEnviando] = useState(false)
   const [envio, setEnvio] = useState<{ firma: string; numero: string; venta: string | null } | null>(null)
@@ -107,6 +108,10 @@ export default function CartSidebar() {
         notes: 'Cotización enviada desde la tienda web SalesIA Enterprise Tienda.',
       })
       setEnvio({ firma: firmaActual, numero: result.quote_number, venta: result.sale_number ?? null })
+      if (result.sale_id) {
+        if (isOpen) toggleCart()
+        navigate(`/pago/${result.sale_id}`)
+      }
     } catch (error) {
       setErrorEnvio(error instanceof Error ? error.message : 'No se pudo enviar la cotización.')
     } finally {

@@ -323,9 +323,24 @@ export default function Cuenta() {
                     </div>
 
                     {((order.status !== 'cancelled' && !order.received_at) ||
+                      (order.status !== 'cancelled' && order.balance > 0) ||
                       (order.claims?.length ?? 0) > 0 ||
                       (reclamandoId === order.id && order.status !== 'cancelled')) && (
                       <div className="px-5 py-4 border-t border-[var(--color-border)] space-y-3">
+                        {order.status !== 'cancelled' && order.balance > 0 && (
+                          <div className="flex flex-wrap items-center justify-between gap-3">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">
+                              Saldo pendiente · {formatPrecio(order.balance)}
+                            </p>
+                            <Link
+                              to={`/pago/${order.id}`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-dark)] text-white text-xs font-bold transition-colors shadow-sm"
+                            >
+                              Pagar ahora
+                            </Link>
+                          </div>
+                        )}
+
                         {order.status !== 'cancelled' && !order.received_at && (
                           <div className="flex flex-wrap items-center justify-between gap-3">
                             <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--color-metallic)]">

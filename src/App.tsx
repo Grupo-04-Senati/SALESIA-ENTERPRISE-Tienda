@@ -15,6 +15,7 @@ import Contact from './pages/Contact'
 import Ingresar from './pages/Ingresar'
 import Registro from './pages/Registro'
 import Cuenta from './pages/Cuenta'
+import Pago from './pages/Pago'
 import NotFound from './pages/NotFound'
 
 function App() {
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/ingresar" element={<Ingresar />} />
                 <Route path="/registro" element={<Registro />} />
                 <Route path="/cuenta" element={<Cuenta />} />
+                <Route path="/pago/:saleId" element={<Pago />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </main>

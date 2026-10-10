@@ -223,6 +223,14 @@ export interface StoreClaim {
   resolved_at: string | null;
 }
 
+export interface StorePayment {
+  id: number;
+  method: string;
+  amount: number;
+  paid_at: string;
+  reference: string | null;
+}
+
 export interface StoreOrder {
   id: number;
   sale_number: string;
@@ -239,6 +247,7 @@ export interface StoreOrder {
   cancel_reason: string | null;
   received_at: string | null;
   claims?: StoreClaim[];
+  payments?: StorePayment[];
 }
 
 async function storeRequest<T>(
@@ -322,5 +331,19 @@ export async function sendOrderClaim(saleId: number, description: string): Promi
     method: 'POST',
     payload: { description },
     fallback: 'No se pudo enviar el reclamo.',
+  });
+}
+
+export interface StorePaymentInput {
+  method: 'card' | 'yape' | 'plin';
+  reference?: string;
+}
+
+/** Registra el cobro de la pasarela simulada sobre el pedido (solo el dueño). */
+export async function payOrder(saleId: number, input: StorePaymentInput): Promise<StoreOrder> {
+  return storeRequest<StoreOrder>(`/orders/${saleId}/pay`, {
+    method: 'POST',
+    payload: input,
+    fallback: 'No se pudo procesar el pago.',
   });
 }
